@@ -1,7 +1,9 @@
+import numpy as np
+
 class BackPropagation:
     def __init__(self, n=3):
-        self.X = None
-        self.y = None
+        self.__X = None
+        self.__y = None
         self.n = n
 
     def fit(self, X, y):
@@ -40,5 +42,8 @@ class BackPropagation:
         if len(list_) != self.n:
             raise ValueError
 
-
+    def __weighted_sum(self, inputs, weights):
+        self.__validate_list(inputs)
+        self.__validate_list(weights)
+        return np.sum(np.array(inputs) * np.array(weights))
 
