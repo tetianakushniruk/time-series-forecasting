@@ -1,7 +1,8 @@
 class BackPropagation:
-    def __init__(self):
+    def __init__(self, n=3):
         self.X = None
         self.y = None
+        self.n = n
 
     def fit(self, X, y):
         self.X = X
@@ -16,10 +17,7 @@ class BackPropagation:
     def X(self, value):
         if not isinstance(value, list):
             raise TypeError
-        if not all(isinstance(v, (int, float)) for v in value):
-            raise TypeError
-        if len(value) != 3:
-            raise ValueError
+        self.__validate_list(value)
         self.__X = value
 
     @property
@@ -35,4 +33,12 @@ class BackPropagation:
     def predict(self, X):
         self.X = X
         pass
+
+    def __validate_list(self, list_):
+        if not all(isinstance(x, (int, float)) for x in list_):
+            raise TypeError
+        if len(list_) != self.n:
+            raise ValueError
+
+
 
