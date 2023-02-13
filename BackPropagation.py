@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class BackPropagation:
     def __init__(self, n=3):
         self.__X = None
@@ -47,3 +48,6 @@ class BackPropagation:
         self.__validate_list(weights)
         return np.sum(np.array(inputs) * np.array(weights))
 
+    @staticmethod
+    def __sigmoid(weighted_sum):
+        return 1 / (1 + np.exp(-weighted_sum))
