@@ -6,7 +6,9 @@ class BackPropagation:
         self.nn_structure = nn_structure
         self.layers_num = len(nn_structure)
         self.learning_rate = learning_rate
-        self.weights = []
+        self.weights = [np.random.normal(scale=1, size=(self.nn_structure[i],
+                                                        self.nn_structure[i + 1]))
+                        for i in range(0, self.layers_num - 1)]
         self.__X = None
         self.__y = None
 
@@ -22,8 +24,6 @@ class BackPropagation:
     def __validate_list(self, list_):
         if not all(isinstance(x, (int, float)) for x in list_):
             raise TypeError
-        if len(list_) != self.n:
-            raise ValueError
 
     @property
     def X(self):
