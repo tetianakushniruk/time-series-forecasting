@@ -43,17 +43,5 @@ class BackPropagation:
         if len(list_) != self.n:
             raise ValueError
 
-    def __weighted_sum(self, inputs, weights):
-        self.__validate_list(inputs)
-        self.__validate_list(weights)
-        return np.sum(np.array(inputs) * np.array(weights))
 
-    @staticmethod
-    def __sigmoid(x):
-        return 1 / (1 + np.exp(-x))
-
-    @staticmethod
-    def __sigmoid_derivative(x):
-        y = BackPropagation.__sigmoid_derivative(x)
-        return y * (1 - y)
 
