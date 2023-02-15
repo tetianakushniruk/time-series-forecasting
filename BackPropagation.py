@@ -1,18 +1,48 @@
 import numpy as np
 
 from NeuralNetwork import NeuralNetwork
+from functions import weighted_sum, sigmoid
 
 
 class BackPropagation:
     def __init__(self, neural_network):
         self.neural_network = neural_network
-        self.__X = None
-        self.__y = None
+        self.X = None
+        self.y = None
 
-    def fit(self, X, y):
+    def fit(self, X, y, max_epochs=1):
         self.X = X
         self.y = y
-        pass
+        for epoch in range(0, max_epochs):
+          for X_train, y_train in zip(X, y):
+              print('---')
+              print(X_train)
+              self.__forward(X_train, y_train)
+
+          print('epoch: {}\t'.format(epoch))
+
+    def __forward(self, X, y):
+        # outputs calculated with activation func on current layer
+        outputs = []
+        # iterate through layers of neural network
+        for layer in range(0 , self.neural_network.layers_num):
+            print('in layers')
+            # outputs on current layer
+            outputs_ = []
+            # iterate through weight vectors of current layer
+            for w in self.neural_network.weights[layer]:
+                print('\tin weights')
+                print(X)
+                # calculate weighted sum (dot product)
+                S = (weighted_sum(X, w))
+                # activation func
+                F = sigmoid(S)
+                outputs_.append(F)
+                print('\t\t'+str(S))
+                print('\t\t'+str(F))
+            X = outputs_
+            outputs.append(outputs_)
+        print(outputs)
 
     def predict(self, X):
         self.X = X
@@ -27,29 +57,3 @@ class BackPropagation:
         if not isinstance(value, NeuralNetwork):
             raise TypeError
         self.__neural_network = value
-
-    @property
-    def X(self):
-        return self.__X
-
-    @X.setter
-    def X(self, value):
-        if not isinstance(value, list):
-            raise TypeError
-        validate_list(value)
-        self.__X = value
-
-    @property
-    def y(self):
-        return self.__y
-
-    @y.setter
-    def y(self, value):
-        if not isinstance(value, (int, float)):
-            raise TypeError
-        self.__y = value
-
-
-def validate_list(list_):
-    if not all(isinstance(x, (int, float)) for x in list_):
-        raise TypeError

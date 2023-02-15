@@ -1,10 +1,10 @@
 import numpy as np
 
 
-def weighted_sum(self, inputs, weights):
+def weighted_sum(inputs, weights):
     if len(inputs) != len(weights):
         raise ValueError
-    return np.sum(np.array(inputs) * np.array(weights))
+    return np.dot(inputs, weights)
 
 
 def sigmoid(x):
