@@ -1,5 +1,7 @@
 import numpy as np
 
+from NeuralNetwork import NeuralNetwork
+
 
 class BackPropagation:
     def __init__(self, neural_network):
@@ -16,9 +18,15 @@ class BackPropagation:
         self.X = X
         pass
 
-    def __validate_list(self, list_):
-        if not all(isinstance(x, (int, float)) for x in list_):
+    @property
+    def neural_network(self):
+        return self.__neural_network
+
+    @neural_network.setter
+    def neural_network(self, value):
+        if not isinstance(value, NeuralNetwork):
             raise TypeError
+        self.__neural_network = value
 
     @property
     def X(self):
@@ -28,7 +36,7 @@ class BackPropagation:
     def X(self, value):
         if not isinstance(value, list):
             raise TypeError
-        self.__validate_list(value)
+        validate_list(value)
         self.__X = value
 
     @property
@@ -41,3 +49,7 @@ class BackPropagation:
             raise TypeError
         self.__y = value
 
+
+def validate_list(list_):
+    if not all(isinstance(x, (int, float)) for x in list_):
+        raise TypeError
