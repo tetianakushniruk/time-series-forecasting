@@ -49,5 +49,11 @@ class BackPropagation:
         return np.sum(np.array(inputs) * np.array(weights))
 
     @staticmethod
-    def __sigmoid(weighted_sum):
-        return 1 / (1 + np.exp(-weighted_sum))
+    def __sigmoid(x):
+        return 1 / (1 + np.exp(-x))
+
+    @staticmethod
+    def __sigmoid_derivative(x):
+        y = BackPropagation.__sigmoid_derivative(x)
+        return y * (1 - y)
+
