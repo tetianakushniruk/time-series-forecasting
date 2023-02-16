@@ -12,5 +12,4 @@ def sigmoid(x):
 
 
 def sigmoid_derivative(x):
-    y = sigmoid(x)
-    return y * (1 - y)
+    return x * (1 - x)
