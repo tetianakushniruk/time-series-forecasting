@@ -2,8 +2,6 @@ import numpy as np
 
 
 def weighted_sum(inputs, weights):
-    if len(inputs) != len(weights):
-        raise ValueError
     return np.dot(inputs, weights)
 
 
