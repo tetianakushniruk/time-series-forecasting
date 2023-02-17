@@ -11,40 +11,46 @@ class BackPropagation:
         self.y = None
         self.E = None
         self.all_outs = []
+        self.all_deltas = []
 
     def fit(self, X, y, max_epochs=1):
         self.X = X
         self.y = y
-        self.all_outs.append(X)
 
         for epoch in range(0, max_epochs):
-            print(self.__forward(X, y))
+            self.__forward(X, y)
+
+            # array of actual final outputs
+            # shape is similar to array of expected outputs
+            y_actual = self.all_outs[-1]
+
+            self.__backward(y_actual, y)
 
 
     def __forward(self, X, y):
         # outputs calculated with activation func on current layer
         # initial value - layer of inputs
-        outputs = [X]
+        self.all_outs.append(X)
         # iterate through layers of neural network
         for layer in range(0, self.neural_network.layers_num):
             # weighted sum (dot product of values and weights)
-            S = np.dot(outputs[layer], self.neural_network.weights[layer])
+            S = np.dot(self.all_outs[layer], self.neural_network.weights[layer])
             Y = sigmoid(S)
-            outputs.append(Y)
-        self.all_outs.append(outputs)
-        return outputs
+            self.all_outs.append(Y)
 
-    def __back(self, Y, y, outputs):
+    def __backward(self, Y, y):
         Y_ = sigmoid_derivative(Y)
-        deltas = [np.array([[(Y - y) * Y_]])]
+        self.all_deltas.append(np.array((Y - y) * Y_))
+
         for layer in range(self.neural_network.layers_num - 1, 0, -1):
-            # calculate deltas for current layer
-            delta = np.dot(deltas[-1], self.neural_network.weights[layer]) \
-                    * sigmoid_derivative(np.array(outputs[layer]))
-            deltas.append(delta.reshape(-1, 1))
+            delta = np.dot(self.all_deltas[-1], self.neural_network.weights[layer].T) \
+                    * sigmoid_derivative(self.all_outs[layer])
+            self.all_deltas.append(delta)
+
         # reverse list of deltas because it was appended backwards
-        deltas.reverse()
-        return deltas
+        self.all_deltas.reverse()
+
+
 
     def __update_weights(self, deltas):
         # iterate through dataset
