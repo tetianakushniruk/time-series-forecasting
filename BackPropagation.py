@@ -18,58 +18,60 @@ class BackPropagation:
         for epoch in range(0, max_epochs):
             deltas = []
             for X_train, y_train in zip(X, y):
-                self.__forward(X_train, y_train)
-                y_output = self.all_outs[-1][0]
+                outputs = self.__forward(X_train, y_train)
+                y_output = outputs[-1][0]
 
                 print('actual: {}\t\t\t\texpected: {}\t'.format(y_output, y_train))
 
-                # deltas.append(self.__back(Y=y_output, y=y_train))
+                deltas.append(self.__back(Y=y_output, y=y_train, outputs=outputs))
 
-                # self.__update_weights(deltas)
-            # print(deltas)
+            print(self.neural_network.weights)
+            print(deltas[0])
+            self.__update_weights(deltas)
             print('epoch: {}\t'.format(epoch))
 
     def __forward(self, X, y):
         # outputs calculated with activation func on current layer
         # initial value - layer of inputs
-        outputs = [X]
+        outputs = [np.array(X)]
         # iterate through layers of neural network
         for layer in range(0, self.neural_network.layers_num):
             S = weighted_sum(outputs[layer], self.neural_network.weights[layer].T)
             Y = sigmoid(S)
             outputs.append(Y)
-        self.all_outs = outputs
-        print(outputs)
+        self.all_outs.append(outputs)
+        return outputs
 
-    def __back(self, Y, y):
+    def __back(self, Y, y, outputs):
         Y_ = sigmoid_derivative(Y)
-        deltas = [[(Y - y) * Y_]]
+        deltas = [np.array([[(Y - y) * Y_]])]
         for layer in range(self.neural_network.layers_num - 1, 0, -1):
             # calculate deltas for current layer
             delta = np.dot(deltas[-1], self.neural_network.weights[layer]) \
-                    * sigmoid_derivative(np.array(self.all_outs[layer]))
+                    * sigmoid_derivative(np.array(outputs[layer]))
             deltas.append(delta.reshape(-1, 1))
         # reverse list of deltas because it was appended backwards
         deltas.reverse()
         return deltas
 
     def __update_weights(self, deltas):
-        # remove the last output
-        all_outs = self.all_outs[:-1]
-        # iterate through layers of neural network
-        for layer in range(0, self.neural_network.layers_num):
-            # print('weights before')
-            # print(self.neural_network.weights[layer])
-            print(np.array(all_outs))
-            print(deltas)
-            print(np.array(all_outs, deltas))
-            self.neural_network.weights[layer] -= self.neural_network.learning_rate \
-                                                  * np.array(self.all_outs[layer]) \
-                                                  * deltas[layer]
-            # print('weights after')
-            print(self.neural_network.weights[layer])
+        # iterate through dataset
+        for i in range(0, len(self.all_outs)):
+            # remove final output
+            all_outs = np.array(self.all_outs[i][:-1])
+            # iterate through layers of neural network
+            for layer in range(0, self.neural_network.layers_num):
 
-
+                print('weights before')
+                print(self.neural_network.weights[layer])
+                print(all_outs[layer])
+                print(deltas[i][layer])
+                print(all_outs[layer] * deltas[layer])
+                self.neural_network.weights[layer] -= self.neural_network.learning_rate \
+                                                      * np.array(self.all_outs[layer]) \
+                                                      * deltas[layer]
+                print('weights after')
+                print(self.neural_network.weights[layer])
 
     def predict(self, X):
         self.X = X
