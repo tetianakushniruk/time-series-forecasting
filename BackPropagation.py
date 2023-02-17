@@ -26,6 +26,8 @@ class BackPropagation:
 
             self.__backward(y_actual, y)
 
+            self.__update_weights()
+            print(self.neural_network.weights)
 
     def __forward(self, X, y):
         # outputs calculated with activation func on current layer
@@ -50,26 +52,17 @@ class BackPropagation:
         # reverse list of deltas because it was appended backwards
         self.all_deltas.reverse()
 
+    def __update_weights(self):
+        # iterate through layers of neural network
+        for layer in range(0, self.neural_network.layers_num):
+            # print('weights before')
+            # print(self.neural_network.weights[layer])
 
-
-    def __update_weights(self, deltas):
-        # iterate through dataset
-        for i in range(0, len(self.all_outs)):
-            # remove final output
-            all_outs = np.array(self.all_outs[i][:-1])
-            # iterate through layers of neural network
-            for layer in range(0, self.neural_network.layers_num):
-
-                print('weights before')
-                print(self.neural_network.weights[layer])
-                print(all_outs[layer])
-                print(deltas[i][layer])
-                print(all_outs[layer] * deltas[layer])
-                self.neural_network.weights[layer] -= self.neural_network.learning_rate \
-                                                      * np.array(self.all_outs[layer]) \
-                                                      * deltas[layer]
-                print('weights after')
-                print(self.neural_network.weights[layer])
+            self.neural_network.weights[layer] -= self.neural_network.learning_rate \
+                                                  * np.dot(self.all_outs[layer].T,
+                                                           self.all_deltas[layer])
+            # print('weights after')
+            # print(self.neural_network.weights[layer])
 
     def predict(self, X):
         self.X = X
