@@ -1,7 +1,7 @@
 import numpy as np
 
 from NeuralNetwork import NeuralNetwork
-from functions import weighted_sum, sigmoid, sigmoid_derivative
+from functions import sigmoid, sigmoid_derivative
 
 
 class BackPropagation:
@@ -15,28 +15,20 @@ class BackPropagation:
     def fit(self, X, y, max_epochs=1):
         self.X = X
         self.y = y
+        self.all_outs.append(X)
+
         for epoch in range(0, max_epochs):
-            deltas = []
-            for X_train, y_train in zip(X, y):
-                outputs = self.__forward(X_train, y_train)
-                y_output = outputs[-1][0]
+            print(self.__forward(X, y))
 
-                print('actual: {}\t\t\t\texpected: {}\t'.format(y_output, y_train))
-
-                deltas.append(self.__back(Y=y_output, y=y_train, outputs=outputs))
-
-            print(self.neural_network.weights)
-            print(deltas[0])
-            self.__update_weights(deltas)
-            print('epoch: {}\t'.format(epoch))
 
     def __forward(self, X, y):
         # outputs calculated with activation func on current layer
         # initial value - layer of inputs
-        outputs = [np.array(X)]
+        outputs = [X]
         # iterate through layers of neural network
         for layer in range(0, self.neural_network.layers_num):
-            S = weighted_sum(outputs[layer], self.neural_network.weights[layer].T)
+            # weighted sum (dot product of values and weights)
+            S = np.dot(outputs[layer], self.neural_network.weights[layer])
             Y = sigmoid(S)
             outputs.append(Y)
         self.all_outs.append(outputs)
