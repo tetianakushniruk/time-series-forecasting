@@ -3,9 +3,7 @@ from numpy import sqrt
 import pandas as pd
 
 from NeuralNetwork import NeuralNetwork
-from functions import sigmoid, sigmoid_derivative
 
-debug = True
 
 class BackPropagation:
     def __init__(self, neural_network):
@@ -41,7 +39,7 @@ class BackPropagation:
         # iterate through layers of neural network
         for layer in range(0, self.neural_network.layers_num-1):
             S = np.dot(all_outs[layer], self.neural_network.weights[layer])
-            Y = sigmoid(S)
+            Y = self.__activate(S)
             all_outs.append(Y)
 
         layer = self.neural_network.layers_num-1
@@ -53,7 +51,7 @@ class BackPropagation:
 
         for layer in range(self.neural_network.layers_num - 1, 0, -1):
             delta = np.dot(deltas[-1], self.neural_network.weights[layer].T) \
-                    * sigmoid_derivative(all_outs[layer])
+                    * self.__deactivate(all_outs[layer])
             deltas.append(delta)
 
         # reverse list of deltas because it was appended backwards
@@ -74,6 +72,14 @@ class BackPropagation:
         print(pd.DataFrame({"predicted": y_pred.ravel(), "actual": y.ravel(), 'error': errors.ravel()}))
         print('total error: {}'.format(np.sum(errors)))
         return y_pred
+
+    @staticmethod
+    def __activate(x):
+        return 1 / (1 + np.exp(-x))
+
+    @staticmethod
+    def __deactivate(x):
+        return x * (1 - x)
 
     @property
     def neural_network(self):
