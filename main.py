@@ -26,9 +26,11 @@ for i in range(train_data_len-inputs_num, len(series)-inputs_num):
 X_test = np.array(X_test)
 y_test = np.array([y_test]).reshape(-1, 1)
 
-bp = BackPropagation(NeuralNetwork([3, 3, 1]))
+bp = BackPropagation(NeuralNetwork([3, 4, 1]))
 print('TRAIN')
 bp.fit(X_train, y_train)
-print('TEST')
+print('\nTEST')
 bp.test(X_test, y_test)
+print('\nPREDICT')
+bp.predict([0.96, 3.32, 1.47])
 

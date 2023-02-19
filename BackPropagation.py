@@ -21,7 +21,7 @@ class BackPropagation:
 
             errors = (y_pred - y)**2
             E = np.sum(errors)
-            if abs(E - E0) < 0.0001:
+            if abs(E - E0) < 0.00001:
                 final_epoch = epoch
                 break
             E0 = E
@@ -72,6 +72,11 @@ class BackPropagation:
         print(pd.DataFrame({"predicted": y_pred.ravel(), "actual": y.ravel(), 'error': errors.ravel()}))
         print('total error: {}'.format(np.sum(errors)))
         return y_pred
+
+    def predict(self, X):
+        _, y_pred = self.__forward(X)
+        print('prediction for {}: {:.2f}'.format(X, y_pred[0]))
+        return y_pred[0]
 
     @staticmethod
     def __activate(x):
