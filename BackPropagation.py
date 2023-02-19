@@ -1,72 +1,79 @@
 import numpy as np
+from numpy import sqrt
+import pandas as pd
 
 from NeuralNetwork import NeuralNetwork
 from functions import sigmoid, sigmoid_derivative
 
+debug = True
 
 class BackPropagation:
     def __init__(self, neural_network):
         self.neural_network = neural_network
-        self.X = None
-        self.y = None
-        self.E = None
-        self.all_outs = []
-        self.all_deltas = []
 
-    def fit(self, X, y, max_epochs=1):
-        self.X = X
-        self.y = y
-
+    def fit(self, X, y, max_epochs=50000):
+        y_pred = None
+        errors = None
+        E0 = 0
+        final_epoch = max_epochs
         for epoch in range(0, max_epochs):
-            self.__forward(X, y)
-
             # array of actual final outputs
             # shape is similar to array of expected outputs
-            y_actual = self.all_outs[-1]
+            all_outs, y_pred = self.__forward(X)
 
-            self.__backward(y_actual, y)
+            errors = (y_pred - y)**2
+            E = np.sum(errors)
+            if abs(E - E0) < 0.0001:
+                final_epoch = epoch
+                break
+            E0 = E
 
-            self.__update_weights()
-            print(self.neural_network.weights)
+            weight_deltas = self.__backward(y_pred, y, all_outs)
+            self.__update_weights(weight_deltas)
 
-    def __forward(self, X, y):
+        print(pd.DataFrame({"predicted": y_pred.ravel(), "actual": y.ravel(), 'error': errors.ravel()}))
+        print('epoch: {}\ntotal error: {}'.format(final_epoch, np.sum(errors)))
+
+    def __forward(self, X):
         # outputs calculated with activation func on current layer
         # initial value - layer of inputs
-        self.all_outs.append(X)
+        all_outs = [X]
         # iterate through layers of neural network
-        for layer in range(0, self.neural_network.layers_num):
-            # weighted sum (dot product of values and weights)
-            S = np.dot(self.all_outs[layer], self.neural_network.weights[layer])
+        for layer in range(0, self.neural_network.layers_num-1):
+            S = np.dot(all_outs[layer], self.neural_network.weights[layer])
             Y = sigmoid(S)
-            self.all_outs.append(Y)
+            all_outs.append(Y)
 
-    def __backward(self, Y, y):
-        Y_ = sigmoid_derivative(Y)
-        self.all_deltas.append(np.array((Y - y) * Y_))
+        layer = self.neural_network.layers_num-1
+        Y = np.dot(all_outs[layer], self.neural_network.weights[layer])
+        return all_outs, Y
+
+    def __backward(self, Y, y, all_outs):
+        deltas = [np.array(Y - y)]
 
         for layer in range(self.neural_network.layers_num - 1, 0, -1):
-            delta = np.dot(self.all_deltas[-1], self.neural_network.weights[layer].T) \
-                    * sigmoid_derivative(self.all_outs[layer])
-            self.all_deltas.append(delta)
+            delta = np.dot(deltas[-1], self.neural_network.weights[layer].T) \
+                    * sigmoid_derivative(all_outs[layer])
+            deltas.append(delta)
 
         # reverse list of deltas because it was appended backwards
-        self.all_deltas.reverse()
+        deltas.reverse()
+        for layer in range(0, self.neural_network.layers_num):
+            deltas[layer] = self.neural_network.learning_rate \
+                                     * np.dot(all_outs[layer].T, deltas[layer])
+        return deltas
 
-    def __update_weights(self):
+    def __update_weights(self, weight_deltas):
         # iterate through layers of neural network
         for layer in range(0, self.neural_network.layers_num):
-            # print('weights before')
-            # print(self.neural_network.weights[layer])
+            self.neural_network.weights[layer] -= weight_deltas[layer]
 
-            self.neural_network.weights[layer] -= self.neural_network.learning_rate \
-                                                  * np.dot(self.all_outs[layer].T,
-                                                           self.all_deltas[layer])
-            # print('weights after')
-            # print(self.neural_network.weights[layer])
-
-    def predict(self, X):
-        self.X = X
-        pass
+    def test(self, X, y):
+        a, y_pred = self.__forward(X)
+        errors = (y_pred - y) ** 2
+        print(pd.DataFrame({"predicted": y_pred.ravel(), "actual": y.ravel(), 'error': errors.ravel()}))
+        print('total error: {}'.format(np.sum(errors)))
+        return y_pred
 
     @property
     def neural_network(self):
