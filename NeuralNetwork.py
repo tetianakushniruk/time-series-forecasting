@@ -8,5 +8,5 @@ class NeuralNetwork:
         self.learning_rate = learning_rate
         self.weights = [np.random.normal(scale=1, size=(self.nn_structure[i],
                                                         self.nn_structure[i + 1]))
+                        * np.sqrt(1/(self.nn_structure[i]+self.nn_structure[i + 1])) #Xavier init
                         for i in range(0, self.layers_num)]
-
